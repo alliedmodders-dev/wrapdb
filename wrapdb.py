@@ -1,5 +1,21 @@
 #!/usr/bin/env python3
 
+# Copyright 2021 Xavier Claessens <xclaesse@gmail.com>
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#     http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Modified By https://github.com/Classes123
+
 import os
 import shutil
 import sys
@@ -75,15 +91,12 @@ class CreateRelease:
         patch_dir = self.wrap_section.get('patch_directory')
         if patch_dir is None:
             return
-        patch_dir = os.path.join(self.root_dir, 'subprojects', 'packagefiles', patch_dir)
-
-        dest_dir = os.path.join(self.temp_dir, self.tag)
 
         archive = shutil.make_archive(
-            f'{dest_dir}-patch',
+            os.path.join(self.temp_dir, f'{self.package}-patch'),
             'zip',
-            root_dir=self.temp_dir,
-            base_dir=os.path.basename(shutil.copytree(os.path.normpath(patch_dir), os.path.normpath(dest_dir)))
+            root_dir=os.path.join(self.root_dir, 'subprojects', 'packagefiles'),
+            base_dir=patch_dir
         )
 
         with open(archive, 'rb') as f:
@@ -91,14 +104,15 @@ class CreateRelease:
 
         filename = os.path.basename(archive)
 
-        self.wrap_section['directory'] = self.tag
-        self.wrap_section['wrapdb_version'] = self.ver
-
         self.wrap_section['patch_url'] = f'https://github.com/{self.git_repo}/releases/download/{self.tag}/{filename}'
         self.wrap_section['patch_hash'] = sha_hash
         self.wrap_section['patch_filename'] = filename
 
+        self.wrap_section['wrapdb_version'] = self.ver
+
         del self.wrap_section['patch_directory']
+        if self.wrap_section.get('directory') is not None:
+            del self.wrap_section['directory']
 
         self.upload(archive, 'application/zip')
 
