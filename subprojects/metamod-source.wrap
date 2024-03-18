@@ -1,6 +1,4 @@
 [wrap-git]
-directory = metamod-source-head-r1
-
 url = https://github.com/alliedmodders/metamod-source
 revision = HEAD
 
