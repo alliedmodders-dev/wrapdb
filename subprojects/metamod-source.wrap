@@ -1,8 +1,0 @@
-[wrap-git]
-url = https://github.com/alliedmodders/metamod-source
-revision = HEAD
-
-patch_directory = metamod-source
-
-[provide]
-metamod-source = mms_dep

@@ -1,0 +1,9 @@
+{
+  "metamod-source": {
+    "head-r1": {
+      "dependencies": [
+        "metamod-source"
+      ]
+    }
+  }
+}

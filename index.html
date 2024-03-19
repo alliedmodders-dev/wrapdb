@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AM WrapDB</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        @import url('https://fonts.cdnfonts.com/css/segoe-ui-4');
+        body {
+            font-family: 'Segoe UI', sans-serif!important;
+        }
+        a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container py-3">
+    <header>
+        <div class="d-flex flex-column flex-md-row align-items-center pb-3 mb-4 border-bottom">
+            <a id="link_logo" href="#" class="d-flex align-items-center link-body-emphasis text-decoration-none">
+                <span class="fs-3">AM WrapDB</span>
+            </a>
+            <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
+                <a id="link_org" class="me-3 py-2 link-body-emphasis text-decoration-none" target="_blank" href="#">Organization</a>
+                <a id="link_repo" class="me-3 py-2 link-body-emphasis text-decoration-none" target="_blank" href="#">Repository</a>
+                <a class="py-2 link-body-emphasis text-decoration-none" target="_blank" href="https://mesonbuild.com/Wrap-dependency-system-manual.html">Guide</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="table-responsive">
+            <table class="table table-bordered text-center align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">Package</th>
+                        <th scope="col">Version</th>
+                        <th scope="col">Provided dependencies</th>
+                        <th scope="col">Provided programs</th>
+                    </tr>
+                </thead>
+                <tbody id="releases">
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function () {
+        $.getJSON("env.json", function (env) {
+            function toLink(arr) {
+                return arr.join('/');
+            }
+
+            let org_url = toLink([env['host'], env['account']]);
+            let repo_url = toLink([org_url, env['repository']]);
+
+            $('#link_org').attr('href', org_url);
+            $('#link_repo').attr('href', repo_url);
+
+            function getReleaseLink(pkg, version) {
+                return toLink([
+                    repo_url,
+                    'releases',
+                    'download',
+                    pkg + '-' + version,
+                    pkg + '.wrap'
+                ]);
+            }
+
+            $.getJSON("releases.json", function (json) {
+                let html = '';
+
+                $.each(json, function (pkg, vdata) {
+                    let is_first = true;
+
+                    $.each(vdata, function (version, data) {
+                        html += '<tr>';
+
+                        if (is_first) {
+                            is_first = false
+
+                            let rel_link = getReleaseLink(pkg, version);
+
+                            html +=
+                                '<th scope="col" rowspan="' + Object.keys(vdata).length + '">' +
+                                '<a href="' + rel_link + '">'
+                                + pkg
+                                + '</a></th>';
+                            html += '<td class="fw-bold"><a href="' + rel_link + '">' + version + '</a></td>';
+                        } else {
+                            html += '<td><a href="' + getReleaseLink(pkg, version) + '">' + version + '</a></td>';
+                        }
+
+                        html +=
+                            '<td>' + (data['dependencies'] !== undefined ? data['dependencies'].join(', ') : '-') + '</td>';
+                        html +=
+                            '<td>' + (data['programs'] !== undefined ? data['programs'].join(', ') : '-') + '</td>';
+                        html += '</tr>'
+                    });
+                });
+
+                $('#releases').append(html);
+            });
+        });
+    });
+</script>
+</body>
+</html>
