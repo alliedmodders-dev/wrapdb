@@ -59,6 +59,7 @@
             let repo_url = toLink([org_url, env['repository']]);
 
             $('#link_org').attr('href', org_url);
+            $('#link_logo').attr('href', repo_url);
             $('#link_repo').attr('href', repo_url);
 
             function getReleaseLink(pkg, version) {
