@@ -90,6 +90,8 @@ class Generate:
             self.upload(url, entry)
 
     def upload(self, url: str, entry: UploadEntry):
+        print(url, entry)
+
         headers = {
             'Authorization': f'token: {self.git_token}',
             'Content-Type': entry.mimetype
@@ -109,6 +111,13 @@ class Generate:
         headers = {
             'Authorization': f'token {self.git_token}'
         }
+
+        response = requests.get(api, headers=headers)
+        response.raise_for_status()
+
+        for r in response.json():
+            if r['tag_name'] == tag:
+                return r['upload_url'].replace(u'{?name,label}', '')
 
         content = {
             'name': tag,
