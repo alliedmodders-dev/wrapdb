@@ -1,0 +1,14 @@
+name: Generate WrapDB releases
+
+on: workflow_dispatch
+
+jobs:
+  generate_release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - run: python3 -u _tools/generate.py ${{ github.repository }} ${{ secrets.GITHUB_TOKEN }}
